@@ -53,11 +53,11 @@ const RegistroApp = ({ }) => {
     };
 
 
-    
+
     const Registrase = async () => {
         let rolUsuario;
-        if( nombre != '' && edad != '' && telefono != '' && direccion != '' && correo != '' && contrasena != '' ){
-            
+        if (nombre != '' && edad != '' && telefono != '' && direccion != '' && correo != '' && contrasena != '') {
+
             const Usuario = {
                 nombre,
                 edad,
@@ -66,7 +66,7 @@ const RegistroApp = ({ }) => {
                 correo,
                 contrasena,
             }
-             
+
             console.log(Usuario);
             if (rol == false) {
                 rolUsuario = `http://localhost:8080/api/hacedor`;
@@ -108,9 +108,16 @@ const RegistroApp = ({ }) => {
             <CssBaseline />
             <Container maxWidth="sm">
                 <Box sx={{ minWidth: 200, maxWidth: 600 }} >
-                <h2>
-                    Registro de Usuarios
-                </h2>
+                    <div className="header">
+                        <h1 className="inicio">
+                            <a href="./login">
+                                Iniciar Sesion
+                            </a>
+                        </h1>
+                        <h1 className="inicio">
+                            Registro
+                        </h1>
+                    </div>
                     <FormControl className="formulario" >
                         <div className="formulario">
                             <InputLabel id="demo-simple-select-label">Seleciona tu rol</InputLabel>

@@ -84,9 +84,9 @@ const InicioSesionApp = ({ }) => {
         console.log(correo, contrasena,);
         e.preventDefault();
 
-        if(rol){
+        if (rol) {
             getUsuarioCliente(correo, contrasena);
-        }else{
+        } else {
             getUsuarioHacedor(correo, contrasena);
         }
     }
@@ -106,7 +106,9 @@ const InicioSesionApp = ({ }) => {
                     Inicio Sesion
                 </h1>
                 <h1 className="inicio">
-                    Registro
+                    <a href="./registro">
+                        Registro
+                    </a>
                 </h1>
             </div>
             <Container maxWidth="sm">
