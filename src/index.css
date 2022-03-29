@@ -4,6 +4,7 @@ html, body {
   font-size: 1 rem;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: azure;
 }
 
 code {
@@ -11,3 +12,12 @@ code {
     monospace;
 }
  
+
+.formulario {
+  margin: auto;
+  padding: 4 rem;
+}
+
+.root{
+  background-color: rgb(202, 202, 202);
+}

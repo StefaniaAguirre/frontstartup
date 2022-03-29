@@ -1,80 +1,150 @@
 import { useEffect, useState } from "react";
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import * as React from 'react';
+import CssBaseline from '@mui/material/CssBaseline';
+import Container from '@mui/material/Container';
+import { InputLabel } from '@mui/material';
+import axios from "axios";
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import '../styles/registroApp.css';
+import { useHistory } from "react-router-dom";
+
+const RegistroApp = ({ }) => {
+
+    // const [usuarioCreado, addUsuario] = 
+    let history = useHistory();
+    const [nombre, setNombre] = useState('');
+    const onChangeNombre = (e) => {
+        setNombre(e.target.value);
+    }
+    const [edad, setEdad] = useState('');
+    const onChangeEdad = (e) => {
+        setEdad(e.target.value);
+    }
+    const [telefono, setTelefono] = useState('');
+    const onChangeTelefono = (e) => {
+        setTelefono(e.target.value);
+    }
+    const [direccion, setDireccion] = useState('');
+    const onChangeDireccion = (e) => {
+        setDireccion(e.target.value);
+    }
+    const [correo, setCorreo] = useState('');
+    const onChangeCorreo = (e) => {
+        setCorreo(e.target.value);
+    }
+    const [contrasena, setContrasena] = useState('');
+    const onChangeContrasena = (e) => {
+        setContrasena(e.target.value);
+    }
+
+    const [rol, setRol] = useState('');
+    const handleChangeRol = (event) => {
+        setRol(event.target.value);
+    };
 
 
-const RegistroApp = ({ user }) => {
-
-    const [userName, setUserName] = useState('nia');
-
-    const [formValues, setformValue] = useState({
-        nombre:'',
-        edad:'',
-        telefono:'',
-        direccion:'',
-        correo: 'name@gmail.com',
-        contrasena: ''
-    });
-    const handleLogin = () => { }
-
-    const handleChange = (e) => {
-        // console.log(e.target.name,e.target.value );
-        setformValue({
-            //Copiar el formulario actual para tomar solo el cambio que realicen
-            ...formValues, 
-            [e.target.name]: e.target.value,
+    
+    const Registrase = async () => {
+        let rolUsuario;
+        if( nombre != '' && edad != '' && telefono != '' && direccion != '' && correo != '' && contrasena != '' ){
+            
+            const Usuario = {
+                nombre,
+                edad,
+                telefono,
+                direccion,
+                correo,
+                contrasena,
+            }
+             
+            console.log(Usuario);
+            if (rol == false) {
+                rolUsuario = `http://localhost:8080/api/hacedor`;
+            } else {
+                rolUsuario = 'http://localhost:8080/api/cliente';
+            }
+            console.log(rolUsuario);
+            createUsuario(Usuario, rolUsuario)
         }
-        )
     }
 
-    const iniciarSesion = () => { 
-       console.log(formValues); 
+
+    const createUsuario = async (usuario, path) => {
+        await axios.post(path, usuario)
+            .then(
+                (response) => {
+                    if (response.data != null) {
+                        console.log(response.data);
+                        history.push("./login/");
+                    } else {
+                        console.log(response.data)
+                        // error al ingreso de los datos 
+                    }
+                }
+            ).catch(
+                (err) => {
+                    console.log(err);
+                }
+            )
     }
 
-    const consulta = () => {
-        // console.log(formValues)
-    }
-    //cuando se renderice todo el componente se ejecuta este metodo
+
     useEffect(() => {
-        consulta();
-    }, [userName])
+
+    }, [])
 
     return (
-        <div>
-            <h1> Pagina de Inicio {user} </h1>
-            <form onSubmit={handleLogin}>
-                <a> Inicio </a>
-                <a> Registro </a>
-                <div class="form-control mb-3">
-                    <div class="form-group mb-3">
-                        <label >Nombre</label>
-                        <input name="nombre" type="text" onChange={handleChange} value={formValues.nombre} class="form-control" placeholder="nombre" />
-                    </div>
-                    <div class="form-group mb-3">
-                        <label >Edad</label>
-                        <input name="edad" type="text" onChange={handleChange} value={formValues.edad} class="form-control" placeholder="edad" />
-                    </div>
-                    <div class="form-group mb-3">
-                        <label >Telefono</label>
-                        <input name="telefono" type="text" onChange={handleChange} value={formValues.telefono} class="form-control" placeholder="telefono" />
-                    </div>
-                    <div class="form-group mb-3">
-                        <label >Direccion</label>
-                        <input name="direccion" type="text" onChange={handleChange} value={formValues.direccion} class="form-control" placeholder="direccion" />
-                    </div>
-                    <div class="form-group mb-3">
-                        <label >Correo</label>
-                        <input name="correo" type="text" onChange={handleChange} value={formValues.correo} class="form-control" placeholder="correo" />
-                    </div>
-                    <div class="form-group mb-3">
-                        <label >Contraseña</label>
-                        <input type="password" name="contrasena" onChange={handleChange} value={formValues.contrasena} id="" class="form-control" />
-                    </div>
-                    <div class="mb-3 row">
-                        <input type="submit" value="iniciarSesion" class="btn btn-info btn-block btn-succes"
-                            onClick={iniciarSesion} />
-                    </div>
-                </div>
-            </form>
-        </div>
+        <React.Fragment>
+            <CssBaseline />
+            <Container maxWidth="sm">
+                <Box sx={{ minWidth: 200, maxWidth: 600 }} >
+                <h2>
+                    Registro de Usuarios
+                </h2>
+                    <FormControl className="formulario" >
+                        <div className="formulario">
+                            <InputLabel id="demo-simple-select-label">Seleciona tu rol</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={rol}
+                                label="Seleciona tu rol"
+                                onChange={handleChangeRol}
+                                required
+                            >
+                                <MenuItem value={true}>Cliente</MenuItem>
+                                <MenuItem value={false}>Hacedor</MenuItem>
+
+                            </Select>
+                            <TextField onChange={onChangeNombre} value={nombre} id="nombre" label="Nombre" variant="outlined" type="" required />
+                            <TextField onChange={onChangeEdad} value={edad} id="edad" label="edad" variant="outlined" required />
+                            <TextField onChange={onChangeTelefono} value={telefono} id="telefono" label="telefono" variant="outlined" required />
+                            <TextField onChange={onChangeDireccion} value={direccion} id="direccion" label="direccion" variant="outlined" required />
+                            <TextField onChange={onChangeCorreo} value={correo} id="correo" label="correo" variant="outlined" required />
+                            <TextField type={"password"} onChange={onChangeContrasena} value={contrasena} id="contrasena" label="contrasena" variant="outlined" required />
+                            <Stack spacing={2} direction="row">
+                                <Button variant="contained" onClick={Registrase}> Registrarse</Button>
+                            </Stack>
+
+                        </div>
+
+
+                    </FormControl>
+
+                </Box>
+            </Container>
+        </React.Fragment>
+
     )
 }
 

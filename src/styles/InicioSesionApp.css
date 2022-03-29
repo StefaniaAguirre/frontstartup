@@ -1,0 +1,19 @@
+.formularioIngreso .MuiFormControl-root.formulario.css-1nrlq1o-MuiFormControl-root {
+    padding-top: 50 px;
+}
+
+
+.formularioIngreso{
+    padding-top: 50 px;
+}
+
+.inicio{
+    display: inline;
+    margin-right: 50px;
+    color: blue;
+}
+
+.header{
+    padding: 10px;
+    background-color: azure;
+}

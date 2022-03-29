@@ -1,0 +1,25 @@
+.texto{
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.MuiBox-root{
+    padding: 2rem;
+    background-color: azure;
+}
+
+.encabezado{
+    /* background-color: azure; */
+    padding: 0 2rem;
+}
+
+.MuiTabs-scroller{
+    background-color: rgb(202, 202, 202);
+}
+
+.MuiBox-root .hidden{
+    color: black;
+}

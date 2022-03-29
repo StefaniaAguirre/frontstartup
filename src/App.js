@@ -1,14 +1,10 @@
-import logo from './logo.svg';
 import './App.css';
-import InicioSesionApp from './components/InicioSesionApp';
-import RegistroApp from './components/RegistroApp';
+import { AppRouter } from './routers/AppRouter';
 
 function App() {
   return (
     <div className="App">
-      <RegistroApp 
-      user={"Tapasco"}
-      />
+      <AppRouter/>
     </div>
   );
 }
