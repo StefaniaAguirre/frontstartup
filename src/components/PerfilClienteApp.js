@@ -67,13 +67,13 @@ const PerfilClienteApp = ({ }) => {
 
     let contador = 0;
 
-    const [ hacedores, getHacedores] = useState([]);
+    const [hacedores, getHacedores] = useState([]);
 
     const { idCliente } = useParams();
-    const [ cliente, getUsuario] = useState([])
-    const [ tareasServicio, getTareasServicio] = useState([]);
-    const [ serviciosCliente, getServiciosCliente] = useState([]);
-    const [ hacedoresCondiciones ] = useState([]);
+    const [cliente, getUsuario] = useState([])
+    const [tareasServicio, getTareasServicio] = useState([]);
+    const [serviciosCliente, getServiciosCliente] = useState([]);
+    const [hacedoresCondiciones] = useState([]);
     const setHacedoresCondiciones = (dato) => {
         hacedoresCondiciones.push(dato);
     }
@@ -154,25 +154,13 @@ const PerfilClienteApp = ({ }) => {
     }
 
     //Obtener hacedores
-    const obtenerHacedores = async (idTarea) => {
-        await axios.get(`http://localhost:8080/api/hacedor/listarHacedores`)
-            .then(
-                (response) => {
-                    getHacedores(response.data);
-                    if (response.data != null) {
-                        response.data.forEach(element => {
-                            verificarHacedores(element.idHacedor, idTarea.idTarea);
-                        });
-                    } else {
-
-                    }
-                }
-            ).catch(
-                (err) => {
-                    console.log(err);
-                }
-            )
-        console.log("contador", contador);
+    const obtenerHacedores = async () => {
+        try {
+            return await axios.get(`http://localhost:8080/api/hacedor/listarHacedores`)
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
     }
 
     //Crear el servicio 
@@ -205,25 +193,17 @@ const PerfilClienteApp = ({ }) => {
 
     //Obtener hacedores que cumplen con las condiciones
     const verificarHacedores = async (idHacedor, idTarea) => {
-        await axios.get(`http://localhost:8080/api/servicio/listarDetalleServicio/${idHacedor}&&${idTarea}`)
-            .then(
-                (response) => {
-                    if (response.data != null && response.data != '') {
-                        contador += 1;
-                        setHacedoresCondiciones(response.data)
-                        precioBase += response.data.precioBase;
-                    }
-                }
-            ).catch(
-                (err) => {
-                    console.log(err);
-                }
-            )
+        try {
+            return await axios.get(`http://localhost:8080/api/servicio/listarDetalleServicio/${idHacedor}&&${idTarea}`);
+            // return data;         
+        } catch (error) {
+            return [];
+        }
     }
 
-    const crear = () => {
+    const crear = async () => {
 
-        const tareaUno = tareasServicio.find( result => result.idTarea === tarea );
+        const tareaUno = tareasServicio.find(result => result.idTarea === tarea);
         const servicio = {
             item: parseInt(item),
             descripcion,
@@ -235,25 +215,31 @@ const PerfilClienteApp = ({ }) => {
         };
 
         // crear el servicio
-        createServicio(servicio);
+        //createServicio(servicio);
 
         // traer hacedores
-        obtenerHacedores(tareaUno);
+        const hacedorE = await obtenerHacedores();
+        let condiciones = [];
 
-        console.log(contador > 0, contador, hacedoresCondiciones)
-        if (contador > 0) {
-            //Crear la oferta para mostrar a los hacedores
+        for (const element of hacedorE.data) {
+            //verificar condiciones del servicio
+            const resultado = await verificarHacedores(element.idHacedor, tareaUno.idTarea);
+            console.log(resultado.data, resultado.data.length);
+            if (resultado.data.length) {
+                condiciones.push(resultado.data);
+                break;
+            }
+        }
+
+        if (condiciones.length) {
             const oferta = {
                 notificacion,
                 fecha: new Date(),
                 tiempoVida: 24,
                 esAceptada: false,
-                precioBase:parseInt(precio)
+                precioBase: parseInt(precio)
             }
             crearOferta(oferta);
-
-        } else {
-            //Notificación al cliente que no exiten hacedores con las condiciones para cumplir con el servicio
         }
 
     }
