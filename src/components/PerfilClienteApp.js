@@ -22,6 +22,7 @@ import Container from '@mui/material/Container';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import MensajeEmergente from "./MensajeEmergente";
 
 import Paper from '@mui/material/Paper';
 
@@ -60,6 +61,7 @@ function a11yProps(index) {
 
 const PerfilClienteApp = ({ }) => {
 
+    const [idMensaje, setIdMensaje] = useState('');
     const [value, setValue] = React.useState(0);
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -74,6 +76,8 @@ const PerfilClienteApp = ({ }) => {
     const [tareasServicio, getTareasServicio] = useState([]);
     const [serviciosCliente, getServiciosCliente] = useState([]);
     const [hacedoresCondiciones] = useState([]);
+    const [ofertasSolicitadas, setOfertasSolicitadas] = useState([]);
+
     const setHacedoresCondiciones = (dato) => {
         hacedoresCondiciones.push(dato);
     }
@@ -191,6 +195,43 @@ const PerfilClienteApp = ({ }) => {
             )
     }
 
+
+    const obtenerOfertasSolicitadas = async (idCliente) => {
+        await axios.get(`http://localhost:8080/api/oferta/listarOfertaCliente/${idCliente}`)
+            .then(
+                (response) => {
+                    console.log(response.data);
+                    setOfertasSolicitadas(response.data);
+                }
+            ).catch(
+                (err) => {
+                    console.log(err);
+                }
+            )
+    }
+
+    const consultar = async () => {
+        const tareaUno = tareasServicio.find(result => result.idTarea === tarea);
+        const hacedorE = await obtenerHacedores();
+        let condiciones = [];
+
+        for (const element of hacedorE.data) {
+            //verificar condiciones del servicio
+            const resultado = await verificarHacedores(element.idHacedor, tareaUno.idTarea);
+            let mensajeDos = "";
+            if (resultado.data.length != 0) {
+                console.log(resultado.data, resultado.data.length);
+                mensajeDos = "Se puede solicitar el Servicio consultado, si existen hacedores que cumplen con las condiciones";
+                setIdMensaje(mensajeDos);
+
+                break;
+            } else {
+                mensajeDos = "No existen hacedores que cumplan con las condiciones";
+                setIdMensaje(mensajeDos);
+            }
+        }
+    }
+
     //Obtener hacedores que cumplen con las condiciones
     const verificarHacedores = async (idHacedor, idTarea) => {
         try {
@@ -215,14 +256,14 @@ const PerfilClienteApp = ({ }) => {
         };
 
         // crear el servicio
-        //createServicio(servicio);
+        createServicio(servicio);
 
         // traer hacedores
         const hacedorE = await obtenerHacedores();
         let condiciones = [];
 
         for (const element of hacedorE.data) {
-            //verificar condiciones del servicio
+            //verificar condiciones de los hacedores para el servicio
             const resultado = await verificarHacedores(element.idHacedor, tareaUno.idTarea);
             console.log(resultado.data, resultado.data.length);
             if (resultado.data.length) {
@@ -248,6 +289,7 @@ const PerfilClienteApp = ({ }) => {
         getCliente(idCliente);
         getTareas();
         getServicios(idCliente);
+        obtenerOfertasSolicitadas(idCliente);
     }, [])
 
     return (
@@ -264,6 +306,7 @@ const PerfilClienteApp = ({ }) => {
                     <Tab label="Servicios terminados" {...a11yProps(0)} />
                     <Tab label="Solicitar Servicios" {...a11yProps(1)} />
                     <Tab label="Ofertas Creadas" {...a11yProps(2)} />
+                    <Tab label="Consultar servicio" {...a11yProps(3)} />
                 </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
@@ -337,7 +380,67 @@ const PerfilClienteApp = ({ }) => {
             </TabPanel>
 
             <TabPanel value={value} index={2}>
-                Ofertas de Servicios
+                Ofertas de Servicios que han sido Aceptados
+                
+                <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell align="left">Item</TableCell>
+                                <TableCell align="left">Descripcion</TableCell>
+                                <TableCell align="left">Precio Servicio</TableCell>
+                                <TableCell align="left">estado de la Oferta</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {ofertasSolicitadas.map((detalle) => (
+                                <TableRow
+                                    key={detalle.idOferta}
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                >
+                                    <TableCell align="left">{detalle.idOferta}</TableCell>
+                                    <TableCell align="left">{detalle.notificacion}</TableCell>
+                                    <TableCell align="left">{detalle.precioBase}</TableCell>
+                                    <TableCell align="left">{detalle.ofertaAceptada ? 'Aceptada' : 'Rechazada'}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+
+            </TabPanel>
+
+            <TabPanel value={value} index={3}>
+                Consultar si un servicio, se puede ofertar, verificando la disponibilidad de hacedores para realizar la tarea
+                <React.Fragment>
+                    <CssBaseline />
+                    <Container maxWidth="sm">
+                        <Box sx={{ minWidth: 200, maxWidth: 600 }} >
+                            <FormControl className="formulario" >
+                                Lista de servicios que se pueden Solicitar
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    value={tarea}
+                                    label="Seleciona la tarea"
+                                    onChange={handleChangeTarea}
+                                    required
+                                >
+                                    {tareasServicio.map(tarea => (
+                                        <MenuItem
+                                            key={tarea.idTarea}
+                                            value={tarea.idTarea}>{tarea.nombre}</MenuItem>
+                                    ))}
+                                </Select>
+
+                                <Stack spacing={2} direction="row">
+                                    <Button variant="contained" onClick={consultar}> Consultar </Button>
+                                </Stack>
+                                <MensajeEmergente mensaje={idMensaje} setMensaje={setIdMensaje} titulo={"Consulta Servicio"}></MensajeEmergente>
+                            </FormControl>
+                        </Box>
+                    </Container>
+                </React.Fragment>
             </TabPanel>
         </Box>
     )

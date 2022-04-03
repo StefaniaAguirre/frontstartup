@@ -3,3 +3,10 @@
     width: 100%;
     flex-direction: column;
 }
+
+.formulario p{
+    margin: 0.1rem;
+    align-self: flex-start;
+    color: #f90000;
+    font-size: 0.8rem;
+}

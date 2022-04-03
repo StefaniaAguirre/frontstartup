@@ -2,6 +2,7 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
+import axios from "axios";
 
 const style = {
     position: 'absolute',
@@ -19,6 +20,7 @@ const style = {
 
 
 export default function DetalleOferta({ oferta }) {
+
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => {
         setOpen(true);
@@ -26,6 +28,35 @@ export default function DetalleOferta({ oferta }) {
     const handleClose = () => {
         setOpen(false);
     };
+    const [mensaje, setMensaje] = React.useState('');
+
+    const handleAcept = (opcionSeleccionada) => {
+
+        crearOferta(oferta.idOferta, opcionSeleccionada);
+        if(opcionSeleccionada){
+            setMensaje("oferta Aceptada");
+        }else{
+
+            setMensaje("oferta Rechazada");
+        }
+
+    }
+  
+
+     //Crear el servicio 
+    const crearOferta = async (idOferta, estado) => {
+        oferta.esAceptada
+        await axios.put(`http://localhost:8080/api/oferta/actualizar/${idOferta}&&${estado}`, oferta)
+            .then(
+                (response) => {
+                    console.log(response.data);
+                }
+            ).catch(
+                (err) => {
+                    console.log(err);
+                }
+            )
+    }
 
     React.useEffect(() => {
         console.log(oferta);
@@ -43,11 +74,10 @@ export default function DetalleOferta({ oferta }) {
             >
                 <Box sx={{ ...style, width: 400 }}>
                     <h2 id="parent-modal-title">Oferta</h2>
-                    <p id="parent-modal-description">
-                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-                    </p>
-                    <Button onClick={handleClose}>Aceptar</Button>
-                    <Button onClick={handleClose}>Rechazar</Button>
+                    <p> {oferta.notificacion}</p>
+                    <p> {mensaje}</p>
+                    <Button onClick={ () => handleAcept(1)}>Aceptar</Button>
+                    <Button onClick={ () => handleAcept(0)}>Rechazar</Button>
                     <Button onClick={handleClose}>Salir</Button>
                 </Box>
             </Modal>

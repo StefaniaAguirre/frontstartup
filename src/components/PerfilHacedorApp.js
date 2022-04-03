@@ -79,6 +79,7 @@ const PerfilHacedorApp = ({ }) => {
     const onChangeRadio = (e) => {
         setRadio(e.target.value);
     }
+    
 
     const [tarea, setTarea] = useState('');
     const handleChangeTarea = (event) => {
@@ -86,10 +87,12 @@ const PerfilHacedorApp = ({ }) => {
     };
 
     const { idHacedor } = useParams();
+    const [ofertas,addOfertas] = useState([]);
     // const [key, setKey] = useState('detalles');
     const [hacedor, getUsuarioHacedor] = useState({});
     const [detallesHacedor, getHabilidadesHacedor] = useState([]);
     const [tareas, getTareasHabilidad] = useState([]);
+    const [auxOfertas, setAuxOfertas] = useState([]);
 
     //Obtener los detalles del hacedor
     const getHacedor = async (idHacedor) => {
@@ -103,7 +106,6 @@ const PerfilHacedorApp = ({ }) => {
                     console.log(err);
                 }
             )
-
     }
 
     //Obtener las habilidades registradas por el usuario
@@ -112,6 +114,7 @@ const PerfilHacedorApp = ({ }) => {
             .then(
                 (response) => {
                     getHabilidadesHacedor(response.data);
+                    obtenerOfertas(response.data);
                     if (response.data == null) {
                         console.log("habilidades no encontradas");
                     } else {
@@ -159,26 +162,32 @@ const PerfilHacedorApp = ({ }) => {
             )
     }
 
-    //ObtenerOferta Por id
-    // const getOferta = async (idOferta) => {
-    //     await axios.get(`http://localhost:8080/api/oferta/listarOfertaHacedor/${idOferta}`)
-    //         .then(
-    //             (response) => {
-    //                 // agregar ofertas a la lista
-    //                 addOfertas(response.data);
-    //                 if (response.data == null) {
-    //                     console.log("habilidades no encontradas");
-    //                 } else {
-    //                     console.log(response.data);
-    //                 }
-    //             }
-    //         ).catch(
-    //             (err) => {
-    //                 console.log(err);
-    //             }
-    //         )
+    // ObtenerOferta Por id
+    const getOfertaHacedores = async (idHacedor, idTarea) => {
+        const resultados = await axios.get(`http://localhost:8080/api/oferta/listarOfertasDelHacedor/${idHacedor}&&${idTarea}`);
+        if(resultados.data){
+            return resultados.data
+        }
+        return [];
+    }
 
-    // }
+    const obtenerOfertas = async (habilidades) =>{
+
+        let ofertaHacedor = [];
+        for (const iterator of habilidades) {
+            const ofertasUno = await getOfertaHacedores(idHacedor, iterator.idTarea);
+            console.log("Ofertas uno:",ofertasUno);
+            ofertaHacedor = [
+                ...ofertaHacedor,
+                ...ofertasUno
+            ]
+            setAuxOfertas(ofertaHacedor);
+            // for (const element of ofertasUno) {
+            //     auxOfertas.push(element)
+            // }
+        }
+        console.log("ofertas del hacedor",auxOfertas);
+    }
 
     const agregar = () => {
         const tareaUno = tareas.find(result => result.idTarea === tarea)
@@ -189,11 +198,15 @@ const PerfilHacedorApp = ({ }) => {
             radio,
         };
         crearHabilidad(habilidadHacedor);
+        //llamar de nuevo para actualizar los datos
+        getHabilidades(idHacedor);
     }
 
     const verDetalle = () =>{
 
     }
+
+    
 
 
     useEffect(() => {
@@ -201,6 +214,7 @@ const PerfilHacedorApp = ({ }) => {
         getHabilidades(idHacedor);
         getTareas();
 
+        
         // getOferta(hacedor.idOferta);
 
     }, [])
@@ -300,25 +314,25 @@ const PerfilHacedorApp = ({ }) => {
                         <TableHead>
                             <TableRow>
                                 <TableCell align="left">Ofertas</TableCell>
-                                <TableCell align="left">Definicion</TableCell>
+                                <TableCell align="left">Descripción</TableCell>
                                 <TableCell align="left">Precio</TableCell>
                                 <TableCell align="left">Acciones</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {/* {ofertas.map((detalle) => (
+                            {auxOfertas.map((detalle) => (
                                 <TableRow
                                     key={detalle.nombre}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
                                     <TableCell align="left">{detalle.nombreTarea}</TableCell>
-                                    <TableCell align="left">{detalle.definicion}</TableCell>
-                                    <TableCell align="left">{detalle.precio}</TableCell>
+                                    <TableCell align="left">{detalle.notificacion}</TableCell>
+                                    <TableCell align="left">{detalle.precioBase}</TableCell>
                                     <TableCell align="left">
-                                     <DetalleOferta hacedor={hacedor}></DetalleOferta>
+                                     <DetalleOferta oferta={detalle}></DetalleOferta>
                                     </TableCell>
                                 </TableRow>
-                            ))} */}
+                            ))}
                         </TableBody>
                     </Table>
                 </TableContainer>
